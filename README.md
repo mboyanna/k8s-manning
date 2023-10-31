@@ -1,2 +1,2 @@
-# deploying-services-on-kubernetes-lp-author
-Repository for liveProject: Deploying Services on Kubernetes
+# run-services-locally-with-kind-lp-author
+Repository for liveProject: Run Services Locally with Kind
