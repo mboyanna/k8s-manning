@@ -8,6 +8,7 @@ class DockerBuildLocallyPlugin implements Plugin<Project> {
     void apply(Project project) {
 
         project.apply(plugin: EnsureBuilderPlugin)
+        project.apply(plugin: StartDockerRegistryPlugin)
 
         def args = ["docker", "buildx", "build", "--builder", EnsureBuilderPlugin.BUILDER_NAME, "--build-arg", "baseImageVersion=${project.ext.eventuateExamplesBaseImageVersion}",
                 "--platform", "linux/amd64,linux/arm64", "-t", "localhost:5002/${project.name.replace"-main", ""}:${project.ext.imageVersion}", "--output=type=image,push=true,registry.insecure=true",
@@ -19,7 +20,7 @@ class DockerBuildLocallyPlugin implements Plugin<Project> {
 
             commandLine (args)
 
-            dependsOn(":registryComposeUp", ":${project.path}:assemble", "createBuilder")
+            dependsOn(":${project.path}:startDockerRegistry", ":${project.path}:assemble", "createBuilder")
         }
 
     }

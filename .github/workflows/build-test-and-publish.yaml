@@ -30,7 +30,7 @@ jobs:
 
     - name: Save test results
       if: ${{ always() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: test-reports
         path: |
@@ -43,7 +43,7 @@ jobs:
 
     - name: Save container logs
       if: ${{ always() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: container-logs
         path: ~/container-logs

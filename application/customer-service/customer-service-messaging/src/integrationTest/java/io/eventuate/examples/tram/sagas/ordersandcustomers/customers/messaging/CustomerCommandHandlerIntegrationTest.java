@@ -36,10 +36,10 @@ public class CustomerCommandHandlerIntegrationTest {
 
   public static EventuateKafkaCluster eventuateKafkaCluster = new EventuateKafkaCluster();
 
-  public static EventuateDatabaseContainer database = DatabaseContainerFactory.makeVanillaDatabaseContainer();
+  public static EventuateDatabaseContainer database = DatabaseContainerFactory.makeVanillaPostgresContainer();
 
   @DynamicPropertySource
-  static void registerMySqlProperties(DynamicPropertyRegistry registry) {
+  static void registerDbProperties(DynamicPropertyRegistry registry) {
     eventuateKafkaCluster.kafka.dependsOn(eventuateKafkaCluster.zookeeper);
     Startables.deepStart(eventuateKafkaCluster.kafka, database).join();
 

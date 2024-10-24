@@ -3,7 +3,6 @@ package io.eventuate.examples.tram.sagas.ordersandcustomers.customers;
 
 import io.eventuate.common.testcontainers.DatabaseContainerFactory;
 import io.eventuate.common.testcontainers.EventuateDatabaseContainer;
-import io.eventuate.common.testcontainers.EventuateZookeeperContainer;
 import io.eventuate.examples.springauthorizationserver.testcontainers.AuthorizationServerContainerForServiceContainers;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaCluster;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaContainer;
@@ -21,14 +20,12 @@ public class CustomerServiceComponentTest {
 
     public static EventuateKafkaCluster eventuateKafkaCluster = new EventuateKafkaCluster();
 
-    public static EventuateZookeeperContainer zookeeper = eventuateKafkaCluster.zookeeper;
-
-    public static EventuateKafkaContainer kafka = eventuateKafkaCluster.kafka.dependsOn(zookeeper);
+    public static EventuateKafkaContainer kafka = eventuateKafkaCluster.kafka;
 
     public static EventuateDatabaseContainer<?> database =
-            DatabaseContainerFactory.makeVanillaDatabaseContainer()
+            DatabaseContainerFactory.makeVanillaPostgresContainer()
                     .withNetwork(eventuateKafkaCluster.network)
-                    .withNetworkAliases("customer-service-mysql")
+                    .withNetworkAliases("customer-service-db")
                     .withReuse(true);
 
 
@@ -42,7 +39,6 @@ public class CustomerServiceComponentTest {
             new ServiceContainer("./Dockerfile", "../../gradle.properties")
                     .withNetwork(eventuateKafkaCluster.network)
                     .withDatabase(database)
-                    .withZookeeper(zookeeper)
                     .withKafka(kafka)
                     .dependsOn(kafka, database)
                     .withEnv(authorizationServer.resourceServerEnv())
