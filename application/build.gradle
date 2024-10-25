@@ -7,22 +7,12 @@ buildscript {
     }
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
-        classpath "com.avast.gradle:gradle-docker-compose-plugin:$dockerComposePluginVersion"
         classpath "org.springframework.cloud:spring-cloud-contract-gradle-plugin:$springCloudContractDependenciesVersion"
     }
 }
 
 
-apply plugin: 'docker-compose'
 apply plugin: GitRepositoryUrlPlugin
-
-dockerCompose {
-    registry {
-        projectName = null
-        useComposeFiles = ["docker-compose-registry.yml"]
-    }
-}
-
 
 subprojects {
 
@@ -70,6 +60,7 @@ task clean(type:Delete) {
 }
 
 task endToEndTests(type: GradleBuild) {
+    startParameter.setBuildCacheEnabled(false)
     tasks = [":end-to-end-tests:endToEndTest"]
     dependsOn(":end-to-end-tests:clean")
 }
@@ -77,14 +68,11 @@ task endToEndTests(type: GradleBuild) {
 
 task endToEndTestsUsingKind(type: GradleBuild) {
     startParameter.projectProperties.put("endToEndTestMode", "Kind")
+    startParameter.setBuildCacheEnabled(false)
     tasks = [":end-to-end-tests:endToEndTest"]
     dependsOn(":end-to-end-tests:clean")
 }
 
-
-task stopServicesMySql(type: GradleBuild) {
-    tasks = ["mysqlComposeDown"]
-}
 
 task compileAll(type: GradleBuild) {
     tasks = ["endToEndTestClasses", "componentTestClasses", "integrationTestClasses", "testClasses", "assemble"]

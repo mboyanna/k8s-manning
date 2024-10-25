@@ -31,10 +31,10 @@ import static org.junit.Assert.assertEquals;
 public class RepositoriesTest {
 
 
-  public static EventuateDatabaseContainer<?> database = DatabaseContainerFactory.makeVanillaDatabaseContainer();
+  public static EventuateDatabaseContainer<?> database = DatabaseContainerFactory.makeVanillaPostgresContainer();
 
   @DynamicPropertySource
-  static void registerMySqlProperties(DynamicPropertyRegistry registry) {
+  static void registerDbProperties(DynamicPropertyRegistry registry) {
     PropertyProvidingContainer.startAndProvideProperties(registry, database);
   }
 

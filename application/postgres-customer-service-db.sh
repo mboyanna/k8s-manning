@@ -4,7 +4,7 @@ export POSTGRES_USER=postgresuser
 export POSTGRES_PASSWORD=postgrespw
 export POSTGRES_DB=eventuate
 
-export HOST=customer-service-mysql
+export HOST=customer-service-db
 
 echo ==== $CID
 
@@ -18,6 +18,6 @@ docker run -i \
    -e HOST \
    -e POSTGRES_DB \
    postgres:12 \
-   sh -c 'export PGPASSWORD=postgrespw; exec psql -h customer-service-mysql -U postgresuser eventuate'
+   sh -c 'export PGPASSWORD=postgrespw; exec psql -h customer-service-db -U postgresuser eventuate'
 
 echo DONE
