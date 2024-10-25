@@ -3,13 +3,15 @@ apply plugin: IntegrationTestsPlugin
 dependencies {
     implementation project(":customer-service:customer-service-domain")
 
-    //implementation "io.eventuate.common:eventuate-common-jdbc"
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-flyway"
+    runtimeOnly "io.eventuate.tram.sagas:eventuate-tram-sagas-spring-flyway"
+    runtimeOnly "io.eventuate.common:eventuate-common-jdbc"
 
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+    runtimeOnly "org.flywaydb:flyway-core"
 
-    implementation 'mysql:mysql-connector-java:8.0.21'
-    implementation 'org.postgresql:postgresql:9.4-1200-jdbc41'
-
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.mockito:mockito-core:2.23.0"
 
     integrationTestImplementation "io.eventuate.common:eventuate-common-testcontainers"
     // TODO shouldn't need to do this too
@@ -17,14 +19,3 @@ dependencies {
 
 }
 
-task("postgresIntegrationTest", type: Test) {
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    shouldRunAfter test
-}
-
-check.dependsOn postgresIntegrationTest
-
-postgresIntegrationTest {
-    systemProperty "spring.profiles.active", "postgres"
-}

@@ -77,6 +77,14 @@ This command uses the Testcontainers framework to run the services on randomly a
 
 Once the services have started, `runApplication` shows the URL of a web page that displays information about how to use the application.
 
+=== Running end to end tests
+
+There are two Gradle tasks for running end to end tests:
+
+* `./gradlew endToEndTests` - runs the tests using test containers
+* `./gradlew endToEndTestsUsingKind` - runs the tests assuming that the application is already running in a Kind-based Kubernetes cluster, e.g. external traffic port is specified by the `API_GATEWAY_PORT` environment variable and defaults to 8080
+
+In order to always run the tests, these tasks first run the `:end-to-end-tests:clean` task and disable Gradle's build caching.
 
 === Building container images
 

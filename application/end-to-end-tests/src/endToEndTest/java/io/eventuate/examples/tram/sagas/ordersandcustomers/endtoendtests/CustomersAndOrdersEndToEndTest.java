@@ -14,6 +14,7 @@ import io.eventuate.examples.tram.sagas.ordersandcustomers.orders.api.web.Create
 import io.eventuate.examples.tram.sagas.ordersandcustomers.orders.api.web.GetOrderResponse;
 import io.eventuate.examples.tram.sagas.ordersandcustomers.orders.api.web.GetOrdersResponse;
 import io.eventuate.util.test.async.Eventually;
+import io.eventuate.util.test.async.EventuallyConfig;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import org.jetbrains.annotations.Nullable;
@@ -43,29 +44,18 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest(classes = CustomersAndOrdersEndToEndTest.Config.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class CustomersAndOrdersEndToEndTest {
 
-    // Service
-    /// Outbox/producer properties:
-    ////  eventuate.tram.outbox.partitioning.outbox.tables
-    ////  eventuate.tram.outbox.partitioning.message.partitions
-    /// Flyway configuration (same as above)
+    private static final Logger logger = LoggerFactory.getLogger(CustomersAndOrdersEndToEndTest.class);
 
-    // CDC Polling configuration
-
-    private static Logger logger = LoggerFactory.getLogger(CustomersAndOrdersEndToEndTest.class);
-
-    private static ApplicationUnderTest applicationUnderTest = ApplicationUnderTest.make();
+    private static final ApplicationUnderTest applicationUnderTest = ApplicationUnderTest.make();
 
     @Configuration
     public static class Config {
 
     }
 
-    private Money creditLimit = new Money("15.00");
+    private final Money creditLimit = new Money("15.00");
     private final Money orderTotalUnderCreditLimit = new Money("12.34");
     private final Money orderTotalOverCreditLimit = new Money("123.40");
-
-
-
 
     private static final String CUSTOMER_NAME = "John";
 
@@ -75,6 +65,7 @@ public class CustomersAndOrdersEndToEndTest {
 
     @BeforeClass
     public static void startContainers() {
+        Eventually.setDefaults(EventuallyConfig.builder().withIterations(100).build());
         applicationUnderTest.start();
         RestAssured.config = RestAssuredConfig.config().objectMapperConfig(objectMapperConfig().jackson2ObjectMapperFactory(
                 (cls, charset) -> JSonMapper.objectMapper

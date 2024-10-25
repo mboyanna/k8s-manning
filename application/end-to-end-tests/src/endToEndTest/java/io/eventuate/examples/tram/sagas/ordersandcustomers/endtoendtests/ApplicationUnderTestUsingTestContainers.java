@@ -1,5 +1,6 @@
 package io.eventuate.examples.tram.sagas.ordersandcustomers.endtoendtests;
 
+import com.github.dockerjava.api.command.CreateContainerCmd;
 import io.eventuate.cdc.testcontainers.EventuateCdcContainer;
 import io.eventuate.common.testcontainers.DatabaseContainerFactory;
 import io.eventuate.common.testcontainers.EventuateDatabaseContainer;
@@ -9,10 +10,13 @@ import io.eventuate.examples.springauthorizationserver.testcontainers.Authorizat
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaCluster;
 import io.eventuate.messaging.kafka.testcontainers.EventuateKafkaContainer;
 import io.eventuate.testcontainers.service.ServiceContainer;
+import org.jetbrains.annotations.NotNull;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.lifecycle.Startables;
 
 import java.time.Duration;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 
 public class ApplicationUnderTestUsingTestContainers extends ApplicationUnderTest {
@@ -36,7 +40,7 @@ public class ApplicationUnderTestUsingTestContainers extends ApplicationUnderTes
     EventuateKafkaCluster eventuateKafkaCluster = new EventuateKafkaCluster("CustomersAndOrdersE2ETest");
 
     zookeeper = eventuateKafkaCluster.zookeeper;
-    kafka = eventuateKafkaCluster.kafka.dependsOn(zookeeper);
+    kafka = eventuateKafkaCluster.kafka;
 
 
     authorizationServer = new AuthorizationServerContainerForServiceContainers()
@@ -44,40 +48,39 @@ public class ApplicationUnderTestUsingTestContainers extends ApplicationUnderTes
             .withNetworkAliases("authorization-server")
             .withReuse(true);
 
-    customerServiceDatabase = DatabaseContainerFactory.makeVanillaDatabaseContainer()
+    customerServiceDatabase = DatabaseContainerFactory.makeVanillaPostgresContainer()
             .withNetwork(eventuateKafkaCluster.network)
-            .withNetworkAliases("customer-service-mysql")
+            .withNetworkAliases("customer-service-db")
             .withReuse(false);
 
-    orderServiceDatabase = DatabaseContainerFactory.makeVanillaDatabaseContainer()
+    orderServiceDatabase = DatabaseContainerFactory.makeVanillaPostgresContainer()
             .withNetwork(eventuateKafkaCluster.network)
-            .withNetworkAliases("order-service-mysql")
+            .withNetworkAliases("order-service-db")
             .withReuse(false);
 
     customerService = new ServiceContainer("../customer-service/customer-service-main/Dockerfile", "../gradle.properties")
             .withNetwork(eventuateKafkaCluster.network)
             .withNetworkAliases("customer-service")
             .withDatabase(customerServiceDatabase)
-            .withZookeeper(zookeeper)
             .withKafka(kafka)
             .dependsOn(customerServiceDatabase, kafka)
             .withReuse(false)
             .withStartupTimeout(Duration.ofSeconds(600))
             .withEnv(authorizationServer.resourceServerEnv())
             .withLogConsumer(new Slf4jLogConsumer(logger).withPrefix("SVC customer-service:"))
-            .withCreateContainerCmdModifier(cmd -> cmd.withName("customer-service-123"))
+            .withCreateContainerCmdModifier(addUniqueSuffix("customer-service"))
     ;
 
     orderService = new ServiceContainer("../order-service/order-service-main/Dockerfile", "../gradle.properties")
             .withNetwork(eventuateKafkaCluster.network)
             .withNetworkAliases("order-service")
             .withDatabase(orderServiceDatabase)
-            .withZookeeper(zookeeper)
             .withKafka(kafka)
             .dependsOn(orderServiceDatabase, kafka)
             .withReuse(false)
             .withStartupTimeout(Duration.ofSeconds(600))
             .withEnv(authorizationServer.resourceServerEnv())
+            .withCreateContainerCmdModifier(addUniqueSuffix("order-service"))
     ;
 
     apiGatewayService = new ServiceContainer("../api-gateway-service/api-gateway-service-main/Dockerfile", "../gradle.properties")
@@ -94,6 +97,8 @@ public class ApplicationUnderTestUsingTestContainers extends ApplicationUnderTes
 //            .withEnv(authorizationServer.resourceServerEnv())
             .withEnv(authorizationServer.clientEnv())
             .withLogConsumer(new Slf4jLogConsumer(logger).withPrefix("SVC api-gateway-service:"))
+            .withCreateContainerCmdModifier(addUniqueSuffix("api-gateway-service"))
+
     ;
 
     cdc = new EventuateCdcContainer()
@@ -105,6 +110,10 @@ public class ApplicationUnderTestUsingTestContainers extends ApplicationUnderTes
 
 
 
+  }
+
+  private static @NotNull Consumer<CreateContainerCmd> addUniqueSuffix(String containerName) {
+    return cmd -> cmd.withName(containerName + "-" + UUID.randomUUID());
   }
 
   @Override
