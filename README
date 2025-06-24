@@ -1,0 +1,6 @@
+#
+# @ Bojana Miloradovic Parman, Jul/2025
+#   - Fixed local dependencies to get compatibility with Java 17
+#      needed to run with the libraries in this repo
+#   - 
+
