@@ -48,6 +48,12 @@ jobs:
         name: container-logs
         path: ~/container-logs
 
+    - name: Install gradle
+      run: |
+        curl -sSL https://services.gradle.org/distributions/gradle-8.5.3-bin.zip -o gradle-8.5.3-bin.zip
+        unzip -q gradle-8.5.3-bin.zip -d /opt/gradle
+        sudo ln -s /opt/gradle/gradle-8.5.3/bin/gradle /usr/local/bin/gradle
+        
     - name: Install kind and kubectl
       run: |
         curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.18.0/kind-linux-amd64
