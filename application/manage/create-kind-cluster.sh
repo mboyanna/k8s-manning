@@ -10,7 +10,7 @@ cmd_cr_cluster=$(kind create cluster --name "$cluster_name")
 output=$(kubectl config current-context)
 
 # Compare the output with the literal string "abc"
-if [ "$output" != "$cluster_name" ]; then
+if [ "$output" != "kind-$cluster_name" ]; then
     exit 1
 fi
 
