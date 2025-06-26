@@ -63,7 +63,7 @@ jobs:
 
     - name: Test kind cluster
       run: |
-        ./test/test-kind-cluster.sh
+        ./application/test/test-kind-cluster.sh
 
     - name: Delete kind cluster
       run: |
