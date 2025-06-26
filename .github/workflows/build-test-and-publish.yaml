@@ -60,6 +60,12 @@ jobs:
     - name: Create kind cluster
       run: |
         ./application/manage/create-kind-cluster.sh
+
+    - name: Test kind cluster
+      run: |
         ./test/test-kind-cluster.sh
+
+    - name: Delete kind cluster
+      run: |
         ./application/manage/delete-kind-cluster.sh
       
