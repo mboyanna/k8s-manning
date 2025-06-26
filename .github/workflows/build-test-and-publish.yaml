@@ -48,23 +48,6 @@ jobs:
         name: container-logs
         path: ~/container-logs
 
-    - name: Install dependencies curl, unzip, zip
-      run: |
-        apt update
-        apt install curl
-        apt install unzip
-        apt install zip
-
-    - name: Install gradle via sdkman
-      run: |
-        curl -s "https://get.sdkman.io" | bash
-        source "$HOME/.sdkman/bin/sdkman-init.sh"
-        sdk install gradle
-        gradle -v
-        #curl -sSL https://services.gradle.org/distributions/gradle-8.5.3-bin.zip -o gradle-8.5.3-bin.zip
-        #unzip -q gradle-8.5.3-bin.zip -d /opt/gradle
-        #sudo ln -s /opt/gradle/gradle-8.5.3/bin/gradle /usr/local/bin/gradle
-        
     - name: Install kind and kubectl
       run: |
         curl -sLo ./kind https://kind.sigs.k8s.io/dl/v0.18.0/kind-linux-amd64
@@ -73,10 +56,6 @@ jobs:
         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         chmod +x kubectl
         mv kubectl /usr/local/bin/
-
-    - name: Install java
-      run: |
-        apt-get install -y openjdk-17-jdk
 
     - name: Create kind cluster
       run: |
